@@ -98,7 +98,8 @@ class DigitClassificationModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
-
+        self.m1 = nn.Parameter(784,200)
+        
     def run(self, x):
         """
         Runs the model for a batch of examples.
