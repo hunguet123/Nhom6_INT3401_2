@@ -98,8 +98,11 @@ class DigitClassificationModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
-        self.m1 = nn.Parameter(784,200)
-        
+        self.m1 = nn.Parameter(784, 200)
+        self.b1 = nn.Parameter(1, 200)
+        self.m2 = nn.Parameter(200, 10)
+        self.b2 = nn.Parameter(1, 10)
+
     def run(self, x):
         """
         Runs the model for a batch of examples.
@@ -115,6 +118,7 @@ class DigitClassificationModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
+   
 
     def get_loss(self, x, y):
         """
@@ -131,11 +135,13 @@ class DigitClassificationModel(object):
         """
         "*** YOUR CODE HERE ***"
 
+    
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+
 
 class LanguageIDModel(object):
     """
