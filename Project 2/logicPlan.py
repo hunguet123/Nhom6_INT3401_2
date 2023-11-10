@@ -529,10 +529,39 @@ def localization(problem, agent) -> Generator:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    'test'
-    util.raiseNotDefined()
+     for wall in walls_list:
+        xW, yW = wall
+        KB.append(PropSymbolExpr(wall_str,xW, yW))
+
+    # moveableSqrStart = []
+    for ords in non_outer_wall_coords:
+        x, y = ords
+        if ords in walls_list:
+            continue
+        KB.append(~PropSymbolExpr(wall_str,x, y))
 
     for t in range(agent.num_timesteps):
+        KB.append(pacphysicsAxioms(t, all_coords, non_outer_wall_coords, walls_grid, sensorModel=sensorAxioms,
+                                   successorAxioms=allLegalSuccessorAxioms))
+
+        KB.append(PropSymbolExpr(agent.actions[t], time=t))
+        percept_rules = fourBitPerceptRules(t, agent.getPercepts())
+        KB.append(percept_rules)
+        possible_locations = []
+
+        for ords in non_outer_wall_coords:
+            x, y = ords
+            availMove = conjoin(KB) & PropSymbolExpr(pacman_str, x, y, time=t)
+            if findModel(availMove) is not False:
+                possible_locations.append((x, y))
+
+            if entails(premise=conjoin(KB), conclusion=PropSymbolExpr(pacman_str, x, y, time=t)) is True:
+                # possible_locations.append(ords)
+                KB.append(PropSymbolExpr(pacman_str, x, y, time=t))
+            if entails(premise=conjoin(KB), conclusion=~PropSymbolExpr(pacman_str, x, y, time=t)) is True:
+                KB.append(~PropSymbolExpr(pacman_str, x, y, time=t))
+
+        agent.moveToNextState(agent.actions[t])
         "*** END YOUR CODE HERE ***"
         yield possible_locations
 
