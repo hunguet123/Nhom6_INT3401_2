@@ -78,38 +78,38 @@ def tinyMazeSearch(problem):
 from ast import literal_eval
 
 
-def getDirFromStr(path):
-    from game import Directions
-    for dir in [Directions.WEST, Directions.NORTH, Directions.SOUTH, Directions.EAST]:
-        if dir in path:
-            return dir
-
-    return None
-
-
-def getDirection(listPath):
-    listPath.pop(0)
-    # print(listPath)
-    listDir = []
-    for path in listPath:
-        try:
-            path = literal_eval(path)
-            listDir.append(path[1])
-        except Exception:
-            path = getDirFromStr(path)
-            listDir.append(path)
-            # print(path)
-    return listDir
-
-
-def getDirectionNotStr(listPath):
-    listPath.pop(0)
-    # print(listPath)
-    listDir = []
-    for path in listPath:
-        # path= literal_eval(path)
-        listDir.append(path[1])
-    return listDir
+# def getDirFromStr(path):
+#     from game import Directions
+#     for dir in [Directions.WEST, Directions.NORTH, Directions.SOUTH, Directions.EAST]:
+#         if dir in path:
+#             return dir
+#
+#     return None
+#
+#
+# def getDirection(listPath):
+#     listPath.pop(0)
+#     # print(listPath)
+#     listDir = []
+#     for path in listPath:
+#         try:
+#             path = literal_eval(path)
+#             listDir.append(path[1])
+#         except Exception:
+#             path = getDirFromStr(path)
+#             listDir.append(path)
+#             # print(path)
+#     return listDir
+#
+#
+# def getDirectionNotStr(listPath):
+#     listPath.pop(0)
+#     # print(listPath)
+#     listDir = []
+#     for path in listPath:
+#         # path= literal_eval(path)
+#         listDir.append(path[1])
+#     return listDir
 
 
 def depthFirstSearch(problem: SearchProblem):
@@ -127,41 +127,47 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    listPath = []
+    # listPath = []
+    #
+    # def getFullPath(currentState, stateFatherDict):
+    #     try:
+    #         listPath.append(stateFatherDict[currentState])
+    #     except Exception:
+    #         return listPath
+    #     getFullPath(stateFatherDict[currentState], stateFatherDict)
 
-    def getFullPath(currentState, stateFatherDict):
-        try:
-            listPath.append(stateFatherDict[currentState])
-        except Exception:
-            return listPath
-        getFullPath(stateFatherDict[currentState], stateFatherDict)
-
-    visitedState = set()
-    stateFatherDict = {}
+    visitedState = []
+    # stateFatherDict = {}
     stack = util.Stack()
-    stack.push(problem.getStartState())
+    stackPath = util.Stack()
+    stack.push((problem.getStartState(),0))
+    stackPath.push([])
     while True:
         try:
-            currentStateFull = stack.pop()
+            currentState = stack.pop()
+            currentStatePath = stackPath.pop()
         except Exception:
             return
-        if currentStateFull == problem.getStartState():
-            currentState = currentStateFull
-        else:
-            currentState = currentStateFull[0]
-        if problem.isGoalState(currentState):
-            listPath.append(str(currentStateFull))
-            getFullPath(str(currentStateFull), stateFatherDict)
-            listPath.reverse()
-            return getDirection(listPath)
-        if str(currentState) in visitedState:
+        # if currentStateFull == problem.getStartState():
+        #     currentState = currentStateFull
+        # else:
+        #     currentState = currentStateFull[0]
+        if problem.isGoalState(currentState[0]):
+            return currentStatePath
+            # listPath.append(str(currentStateFull))
+            # getFullPath(str(currentStateFull), stateFatherDict)
+            # listPath.reverse()
+            # return getDirection(listPath)
+        if currentState[0] in set(visitedState):
             continue
-        visitedState.add(str(currentState))
-        currentNeibourList = problem.getSuccessors(currentState)
+        visitedState.append(currentState[0])
+        currentNeibourList = problem.getSuccessors(currentState[0])
         for currentNeibour in currentNeibourList:
             if str(currentNeibour[0]) not in visitedState:
-                stateFatherDict[str(currentNeibour)] = str(currentStateFull)
-                stack.push(currentNeibour)
+                # stateFatherDict[str(currentNeibour)] = str(currentStateFull)
+                stack.push((currentNeibour[0], currentNeibour[2]))
+                newPath = currentStatePath.copy() + [currentNeibour[1]]
+                stackPath.push(newPath)
 
     util.raiseNotDefined()
 
@@ -169,94 +175,98 @@ def depthFirstSearch(problem: SearchProblem):
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    listPath = []
+    # listPath = []
+    #
+    # def getFullPath(currentState, stateFatherDict):
+    #     try:
+    #         listPath.append(stateFatherDict[currentState])
+    #     except Exception:
+    #         return listPath
+    #     getFullPath(stateFatherDict[currentState], stateFatherDict)
 
-    def getFullPath(currentState, stateFatherDict):
-        try:
-            listPath.append(stateFatherDict[currentState])
-        except Exception:
-            return listPath
-        getFullPath(stateFatherDict[currentState], stateFatherDict)
-
-    visitedState = set()
-    stateFatherDict = {}
+    visitedState = []
+    # stateFatherDict = {}
     queue = util.Queue()
-    queue.push(problem.getStartState())
+    queuePath = util.Queue()
+    queue.push((problem.getStartState(), 0))
+    queuePath.push([])
     while True:
         try:
-            currentStateFull = queue.pop()
+            currentState = queue.pop()
+            currentStatePath = queuePath.pop()
         except Exception:
             return
-        if currentStateFull == problem.getStartState():
-            currentState = currentStateFull
-        else:
-            currentState = currentStateFull[0]
-        if problem.isGoalState(currentState):
-            listPath.append(str(currentStateFull))
-            getFullPath(str(currentStateFull), stateFatherDict)
-            listPath.reverse()
-            return getDirection(listPath)
-        if str(currentState) in visitedState:
+        # if currentStateFull == problem.getStartState():
+        #     currentState = currentStateFull
+        # else:
+        #     currentState = currentStateFull[0]
+        if problem.isGoalState(currentState[0]):
+            return currentStatePath
+            # listPath.append(str(currentStateFull))
+            # getFullPath(str(currentStateFull), stateFatherDict)
+            # listPath.reverse()
+            # return getDirection(listPath)
+        if currentState[0] in visitedState:
             continue
-        visitedState.add(str(currentState))
-        currentNeibourList = problem.getSuccessors(currentState)
+        visitedState.append(currentState[0])
+        currentNeibourList = problem.getSuccessors(currentState[0])
         for currentNeibour in currentNeibourList:
             if str(currentNeibour[0]) not in visitedState:
-                stateFatherDict[str(currentNeibour)] = str(currentStateFull)
-                queue.push(currentNeibour)
+                # stateFatherDict[str(currentNeibour)] = str(currentStateFull)
+                queue.push((currentNeibour[0], currentNeibour[2]))
+                newPath = currentStatePath.copy() + [currentNeibour[1]]
+                queuePath.push(newPath)
+
     util.raiseNotDefined()
 
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    listPath = []
+    # listPath = []
+    #
+    # def getFullPath(currentState, stateFatherDict):
+    #     try:
+    #         listPath.append(stateFatherDict[currentState])
+    #     # if currentState not in stateFatherDict:
+    #     except Exception:
+    #         # listPath.append(currentState)
+    #         return listPath
+    #     # print(stateFatherDict[currentState])
+    #     # print(listPath)
+    #     getFullPath(stateFatherDict[currentState], stateFatherDict)
 
-    def getFullPath(currentState, stateFatherDict):
-        try:
-            listPath.append(stateFatherDict[currentState])
-        # if currentState not in stateFatherDict:
-        except Exception:
-            # listPath.append(currentState)
-            return listPath
-        # print(stateFatherDict[currentState])
-        # print(listPath)
-        getFullPath(stateFatherDict[currentState], stateFatherDict)
-
-    pathCostTotal = {
-        problem.getStartState(): 0
-    }
-    visitedState = set()
-    stateFatherDict = {}
+    visitedState = []
+    visitedStateCost = []
     priorityQueue = util.PriorityQueue()
-    priorityQueue.push(problem.getStartState(), 0)
+    priorityQueuePath = util.PriorityQueue()
+    priorityQueue.push((problem.getStartState(), 0), 0)
+    priorityQueuePath.push([], 0)
     while True:
         try:
-            currentStateFull = priorityQueue.pop()
+            currentState, pathCostTotal = priorityQueue.pop()
+            thisPath = priorityQueuePath.pop()
         except Exception:
             return
-        if currentStateFull == problem.getStartState():
-            currentState = currentStateFull
+        if currentState in visitedState:
+            if visitedStateCost[visitedState.index(currentState)] <= pathCostTotal:
+                continue
+            visitedStateCost[visitedState.index(currentState)] = pathCostTotal
         else:
-            currentState = currentStateFull[0]
+            visitedState.append(currentState)
+            visitedStateCost.append(pathCostTotal)
         if problem.isGoalState(currentState):
-            # print(stateFatherDict)
-            listPath.append(currentStateFull)
-            getFullPath(currentStateFull, stateFatherDict)
-            # getFullPath(currentState, stateFatherDict)
-            listPath.reverse()
-            return getDirectionNotStr(listPath)
-        if str(currentState) in visitedState:
-            continue
-        visitedState.add(currentState)
-        # print(problem.getSuccessors(currentState))
+            return thisPath
         currentNeibourList = problem.getSuccessors(currentState)
         for currentNeibour in currentNeibourList:
-            statePathCost = pathCostTotal[currentState] + currentNeibour[2]
-            if currentNeibour[0] not in pathCostTotal or pathCostTotal[currentNeibour[0]] > statePathCost:
-                stateFatherDict[currentNeibour] = currentStateFull
-                priorityQueue.push(currentNeibour, statePathCost)
-                pathCostTotal[currentNeibour[0]] = statePathCost
+            neibTotalCost = currentNeibour[2] + pathCostTotal
+            if currentNeibour[0] in visitedState:
+                if visitedStateCost[visitedState.index(currentNeibour[0])] <= neibTotalCost:
+                    continue
+                # pathTotalCostDict[currentNeibour[0]] = neibTotalCost
+            # heuristicAndTotalCost = neibTotalCost + heuristic(currentNeibour[0], problem)
+            priorityQueue.push((currentNeibour[0], neibTotalCost), neibTotalCost)
+            priorityQueuePath.push(thisPath + [currentNeibour[1]], neibTotalCost)
 
     util.raiseNotDefined()
 
