@@ -529,7 +529,7 @@ def localization(problem, agent) -> Generator:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-     for wall in walls_list:
+    for wall in walls_list:
         xW, yW = wall
         KB.append(PropSymbolExpr(wall_str,xW, yW))
 
@@ -568,7 +568,6 @@ def localization(problem, agent) -> Generator:
 
 # ______________________________________________________________________________
 # QUESTION 7
-
 def mapping(problem, agent) -> Generator:
     '''
     problem: a MappingProblem instance
@@ -592,10 +591,31 @@ def mapping(problem, agent) -> Generator:
     KB.append(conjoin(outer_wall_sent))
 
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    # util.raiseNotDefined()
+    KB.append(PropSymbolExpr(pacman_str, pac_x_0, pac_y_0, time=0))
+    KB.append(~PropSymbolExpr(wall_str, pac_x_0, pac_y_0))
     for t in range(agent.num_timesteps):
         "*** END YOUR CODE HERE ***"
+        KB.append(pacphysicsAxioms(t, all_coords, non_outer_wall_coords, known_map, sensorModel=sensorAxioms,
+                                   successorAxioms=allLegalSuccessorAxioms))
+
+        KB.append(PropSymbolExpr(agent.actions[t], time=t))
+        percept_rules = fourBitPerceptRules(t, agent.getPercepts())
+        KB.append(percept_rules)
+
+        for ords in non_outer_wall_coords:
+            x,y = ords
+            isWall = PropSymbolExpr(wall_str,x,y) & conjoin(KB)
+            # if findModel(isWall) is not False
+            if entails(premise=conjoin(KB), conclusion=PropSymbolExpr(wall_str,x,y)) is True:
+                # possible_locations.append(ords)
+                known_map[x][y] = 1
+                KB.append(PropSymbolExpr(wall_str, x, y))
+            if entails(premise=conjoin(KB), conclusion=~PropSymbolExpr(wall_str,x,y)) is True:
+                known_map[x][y] = 0
+                KB.append(~PropSymbolExpr(wall_str, x, y))
+
+        agent.moveToNextState(agent.actions[t])
         yield known_map
 
 
