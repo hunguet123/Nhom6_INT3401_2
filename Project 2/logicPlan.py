@@ -512,9 +512,10 @@ def foodLogicPlan(problem) -> List:
     "*** END YOUR CODE HERE ***"
 
 
+
+
 # ______________________________________________________________________________
 # QUESTION 6
-
 def localization(problem, agent) -> Generator:
     '''
     problem: a LocalizationProblem instance
@@ -528,6 +529,7 @@ def localization(problem, agent) -> Generator:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
+    'test'
     util.raiseNotDefined()
 
     for t in range(agent.num_timesteps):
