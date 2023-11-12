@@ -98,8 +98,11 @@ class DigitClassificationModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
-        self.m1 = nn.Parameter(784,200)
-        
+        self.m1 = nn.Parameter(784, 200)
+        self.b1 = nn.Parameter(1, 200)
+        self.m2 = nn.Parameter(200, 10)
+        self.b2 = nn.Parameter(1, 10)
+
     def run(self, x):
         """
         Runs the model for a batch of examples.
@@ -115,6 +118,12 @@ class DigitClassificationModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
+        x = nn.Linear(x, self.m1)
+        x = nn.AddBias(x, self.b1)
+        x = nn.ReLU(x)
+        x = nn.Linear(x, self.m2)
+        x = nn.AddBias(x, self.b2)
+        return x
 
     def get_loss(self, x, y):
         """
@@ -130,12 +139,22 @@ class DigitClassificationModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
-
+        return nn.SoftmaxLoss(self.run(x), y)
+    
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        learning_rate = -0.5
+        while dataset.get_validation_accuracy() < 0.98:
+            for x, y in dataset.iterate_once(100):
+                loss = self.get_loss(x, y)
+                grad_wrt_m1, grad_wrt_b1, grad_wrt_m2, grad_wrt_b2 = nn.gradients(loss,[self.m1, self.b1, self.m2, self.b2])
+                self.m1.update(grad_wrt_m1, learning_rate)
+                self.b1.update(grad_wrt_b1, learning_rate)
+                self.m2.update(grad_wrt_m2, learning_rate)
+                self.b2.update(grad_wrt_b2, learning_rate)
 
 class LanguageIDModel(object):
     """
@@ -155,6 +174,13 @@ class LanguageIDModel(object):
 
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        self.hSize = 600
+        self.wX = nn.Parameter(self.num_chars, self.hSize)
+        self.wHidden = nn.Parameter(self.hSize,self.hSize)
+        self.m1 = nn.Parameter(self.hSize, 500)
+        self.b1 = nn.Parameter(1, 500)
+        self.m2 = nn.Parameter(500, 5)
+        self.b2 = nn.Parameter(1, 5)
 
     def run(self, xs):
         """
@@ -186,6 +212,20 @@ class LanguageIDModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
+        h = nn.Linear(xs[0], self.wX)
+        for i in range(1, len(xs)):
+            h_prev = h
+            h = nn.Add(nn.Linear(xs[i], self.wX), nn.Linear(h_prev, self.wHidden))
+
+        x = nn.Linear(h, self.m1)
+        # print(x)
+        x = nn.AddBias(x, self.b1)
+        x = nn.ReLU(x)
+        # print(x)
+        x = nn.Linear(x, self.m2)
+        x = nn.AddBias(x, self.b2)
+        # print(x)
+        return x
 
     def get_loss(self, xs, y):
         """
@@ -202,9 +242,20 @@ class LanguageIDModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        return nn.SoftmaxLoss(self.run(xs),y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        learning_rate = -0.05
+        while dataset.get_validation_accuracy() < 0.85:
+            for x, y in dataset.iterate_once(100):
+                loss = self.get_loss(x, y)
+                grad_wrt_m1, grad_wrt_b1, grad_wrt_m2, grad_wrt_b2 = nn.gradients(loss,
+                                                                                  [self.m1, self.b1, self.m2, self.b2])
+                self.m1.update(grad_wrt_m1, learning_rate)
+                self.b1.update(grad_wrt_b1, learning_rate)
+                self.m2.update(grad_wrt_m2, learning_rate)
+                self.b2.update(grad_wrt_b2, learning_rate)
